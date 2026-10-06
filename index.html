@@ -318,7 +318,7 @@ const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;'
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset()*6e4).toISOString().slice(0,10); };
 
-let members = [], att = {}, done = {}, snap = {}, users = [], me = null, editU = null, loadErr = false, cur = {}, editId = null, fs = null;
+let members = [], att = {}, done = {}, snap = {}, users = [], me = null, editU = null, loadErr = false, cur = {}, editId = null, fs = null, synced = {};
 const useFB = !!(FIREBASE_CONFIG.apiKey && window.firebase);
 if (useFB) { firebase.initializeApp(FIREBASE_CONFIG); fs = firebase.firestore(); fs.enablePersistence({ synchronizeTabs: true }).catch(() => {}); }
 $('mode').textContent = useFB ? 'متصل بـ Firebase' : 'حفظ محلي على الجهاز (Firebase غير مفعّل)';
@@ -333,7 +333,7 @@ const DB = {
       const m = await fs.collection('sec_members').get();
       members = m.docs.map(d => ({ id: d.id, ...d.data() }));
       const a = await fs.collection('sec_attendance').get();
-      att = {}; done = {}; snap = {}; a.docs.forEach(d => { att[d.id] = d.data().records || {}; snap[d.id] = d.data().snap || {}; if (d.data().done) done[d.id] = true; });
+      att = {}; done = {}; snap = {}; synced = {}; a.docs.forEach(d => { synced[d.id] = { ...(d.data().records || {}) }; att[d.id] = d.data().records || {}; snap[d.id] = d.data().snap || {}; if (d.data().done) done[d.id] = true; });
     } else { members = LS('sec_m') || []; att = LS('sec_a') || {}; done = LS('sec_d') || {}; snap = LS('sec_s') || {}; }
     members.sort((x, y) => x.name.localeCompare(y.name, 'ar'));
   },
@@ -358,11 +358,38 @@ const DB = {
     else localStorage.setItem('sec_m', JSON.stringify(members));
   },
   async saveAtt(date, rec) {
-    if (useFB) await ack(fs.collection('sec_attendance').doc(date).set({ records: rec, done: !!done[date], snap: snap[date] || {} }));
-    else { localStorage.setItem('sec_a', JSON.stringify(att)); localStorage.setItem('sec_d', JSON.stringify(done)); localStorage.setItem('sec_s', JSON.stringify(snap)); }
+    if (useFB) {
+      const prev = synced[date] || {}, recs = {};
+      Object.keys(rec).forEach(k => { if (prev[k] !== rec[k]) recs[k] = rec[k]; });
+      Object.keys(prev).forEach(k => { if (!(k in rec)) recs[k] = firebase.firestore.FieldValue.delete(); });
+      synced[date] = { ...rec };
+      await ack(fs.collection('sec_attendance').doc(date).set({ records: recs, done: !!done[date], snap: snap[date] || {} }, { merge: true }));
+    } else { localStorage.setItem('sec_a', JSON.stringify(att)); localStorage.setItem('sec_d', JSON.stringify(done)); localStorage.setItem('sec_s', JSON.stringify(snap)); }
+  },
+  listen(onChange) {
+    if (!useFB) return;
+    fs.collection('sec_members').onSnapshot(s => {
+      members = s.docs.map(d => ({ id: d.id, ...d.data() }));
+      members.sort((x, y) => x.name.localeCompare(y.name, 'ar'));
+      onChange();
+    });
+    fs.collection('sec_attendance').onSnapshot(s => {
+      const cd = $('tDate').value;
+      s.docChanges().forEach(ch => {
+        const id = ch.doc.id;
+        if (ch.type === 'removed') { delete att[id]; delete done[id]; delete snap[id]; delete synced[id]; if (id === cd) cur = {}; return; }
+        const d = ch.doc.data(), rec = d.records || {};
+        const dirty = id === cd && JSON.stringify(cur) !== JSON.stringify(att[id] || {});
+        att[id] = { ...rec }; snap[id] = d.snap || {}; synced[id] = { ...rec };
+        if (d.done) done[id] = true; else delete done[id];
+        if (id === cd && !dirty) cur = { ...rec };
+      });
+      onChange();
+    });
+    fs.collection('sec_users').onSnapshot(s => { users = s.docs.map(d => ({ id: d.id, ...d.data() })); });
   },
   async delSession(date) {
-    if (useFB) await ack(fs.collection('sec_attendance').doc(date).delete());
+    if (useFB) { delete synced[date]; await ack(fs.collection('sec_attendance').doc(date).delete()); }
     else { localStorage.setItem('sec_a', JSON.stringify(att)); localStorage.setItem('sec_d', JSON.stringify(done)); localStorage.setItem('sec_s', JSON.stringify(snap)); }
   }
 };
@@ -839,6 +866,12 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   try { await DB.load(); await DB.loadUsers(); } catch (e) { loadErr = true; toast('تعذر تحميل البيانات'); }
   $('tDate').value = defaultDate(); fillTpl();
   loadDay(); renderMembers();
+  DB.listen(() => {
+    renderMembers(); renderTake();
+    if (!$('report').classList.contains('hide')) renderReport();
+    if (!$('log').classList.contains('hide')) renderLog();
+    if (!$('care').classList.contains('hide') && typeof renderCare === 'function') renderCare();
+  });
   const u0 = users.find(x => x.id === localStorage.getItem('sec_login'));
   if (u0) enter(u0); else showLogin();
   await wait(Math.max(0, 2200 - (Date.now() - t0)));
