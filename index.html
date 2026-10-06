@@ -1,308 +1,852 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>صفحة دخول - لوحات الدوريات</title>
-  <style>
-    :root{
-      --bg:#0b132b;
-      --card:#1c2541;
-      --accent:#4ac1ff;
-      --glow:#4ac1ff44;
-      --muted:#a1b2c3;
-      --shadow:0 8px 30px rgba(0,0,0,0.7);
-      --radius:16px;
-      --font-title:'Segoe UI', Tahoma, Arial;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حضور وغياب خدمة الثانوي</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1626">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#f2f5f9;--card:#fff;--ink:#14324a;--mut:#6b7c8d;--line:#dde4ec;--boy:#2f6fde;--girl:#d6456e;--ok:#1e9e6a;--no:#d9473f;--exc:#d4961c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,sans-serif;padding-bottom:40px}
+header{background:var(--ink);color:#fff;padding:18px 16px 0}
+header h1{margin:0 0 4px;font-size:20px}
+header small{opacity:.7}
+nav{display:flex;gap:4px;margin-top:14px;max-width:900px;margin-inline:auto}
+nav button{flex:1;background:transparent;border:0;color:#cfdbe6;font:600 15px Cairo;padding:11px 6px;cursor:pointer;border-radius:10px 10px 0 0}
+nav button.on{background:var(--bg);color:var(--ink)}
+main{max-width:900px;margin:0 auto;padding:16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select{font:400 15px Cairo;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);min-width:0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--boy);outline-offset:1px}
+.grow{flex:1;min-width:140px}
+.btn{font:600 14px Cairo;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;background:var(--ink);color:#fff}
+.btn.sec{background:#e6ecf2;color:var(--ink)}
+.btn.del{background:#fbe6e4;color:var(--no)}
+.m{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.m:last-child{border:0}
+.tag{font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;color:#fff;white-space:nowrap}
+.tag.boy{background:var(--boy)}.tag.girl{background:var(--girl)}
+.nm{flex:1;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.st{display:flex;gap:4px}
+.st button{font:600 13px Cairo;padding:7px 11px;border:1px solid var(--line);background:#fff;color:var(--mut);border-radius:8px;cursor:pointer}
+.st button.p.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.st button.a.on{background:var(--no);border-color:var(--no);color:#fff}
+.st button.e.on{background:var(--exc);border-color:var(--exc);color:#fff}
+.sum{display:flex;gap:14px;flex-wrap:wrap;font-weight:600;margin-bottom:8px}
+.sum span b{font-size:18px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 6px;text-align:right;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+.bar{height:6px;background:#e6ecf2;border-radius:9px;min-width:50px}
+.bar i{display:block;height:100%;border-radius:9px;background:var(--ok)}
+.empty{text-align:center;color:var(--mut);padding:24px}
+.hide{display:none!important}
+#toast{position:fixed;bottom:18px;inset-inline:0;margin:auto;width:max-content;max-width:90%;background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none}
+#toast.show{opacity:1}
+.wrap{overflow-x:auto}
+summary{cursor:pointer;list-style:none;font-weight:600;line-height:2}
+summary::-webkit-details-marker{display:none}
+.ban{background:#e8f6ef;color:var(--ok);padding:8px 12px;border-radius:8px;font-weight:600;margin-bottom:8px}
+.st button:disabled{opacity:.55;cursor:default}
+.ln{margin:6px 0;line-height:1.9}
+textarea{font:400 15px Cairo;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin:4px 0 8px;color:var(--ink)}
+.btn.wa{background:#128c4a}
+.btn.wa.sent{background:#e6ecf2;color:var(--mut)}
+input[type=checkbox]{width:18px;height:18px;padding:0;min-width:0;accent-color:var(--ink)}
+label{display:flex;align-items:center;gap:6px}
+.lg{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.lgbox{background:#fff;border-radius:14px;padding:26px 22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px}
+.lgbox h1{margin:0;font-size:22px}
+.lgbox p{margin:0 0 6px;color:var(--mut);font-size:14px}
+.lgbox .btn{padding:11px}
+#lgErr{color:var(--no);font-size:14px;min-height:18px}
+.hb{background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:8px;padding:7px 12px;font:600 13px Cairo;cursor:pointer}
+@media(max-width:560px){.m{flex-wrap:wrap}.st{width:100%}.st button{flex:1}}
 
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family: var(--font-title);
-      background: linear-gradient(135deg, #0b132b 0%, #090f2c 100%);
-      color:#e8f4ff;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      padding:0;
-    }
-
-    /* الهيدر */
-    header{
-      width:100%;
-      text-align:center;
-      padding:30px 15px;
-      background:rgba(255,255,255,0.03);
-      border-bottom:1px solid rgba(255,255,255,0.1);
-      box-shadow:0 4px 20px rgba(0,0,0,0.5);
-    }
-    header h1{
-      font-size:32px;
-      font-weight:700;
-      margin:0;
-      color:var(--accent);
-      text-shadow: 0 2px 8px rgba(0,0,0,0.7);
-    }
-
-    main{
-      width:100%;
-      max-width:920px;
-      margin-top:30px;
-      padding:20px;
-    }
-
-    .card{
-      position: relative;
-      width:100%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius);
-      padding:32px;
-      box-shadow:var(--shadow);
-      display:flex;
-      flex-direction:column;
-      gap:30px;
-      overflow:hidden;
-    }
-
-    /* اللوجو الكبير كخلفية */
-    .card::before {
-      content:"";
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      width:300px;
-      height:300px;
-      background:url('logo.png') no-repeat center center;
-      background-size:contain;
-      opacity:0.08;
-      pointer-events:none;
-    }
-
-    /* اللوجو الصغير أعلى الشمال داخل الكارد */
-    .logo-top-left {
-      position:absolute;
-      top:15px;
-      left:15px;
-      width:100px;
-      height:100px;
-      background:url('logo.png') no-repeat center center;
-      background-size:contain;
-      opacity:1;
-      pointer-events:none;
-      z-index:1;
-    }
-
-    .brand{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:18px;
-      padding:14px;
-      position:relative;
-      z-index:2; /* لضمان ظهور المحتوى فوق الخلفية */
-    }
-
-    .brand h1{
-      font-size:22px;
-      margin:0;
-      font-weight:600;
-      color:#fff;
-      text-align:center;
-    }
-    .designer{
-      font-size:14px;
-      color:var(--muted);
-      text-align:center;
-    }
-    .desc{
-      font-size:14px;
-      color:var(--muted);
-      text-align:center;
-      padding:0 6px;
-      line-height:1.5;
-    }
-
-    form{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      position:relative;
-      z-index:2;
-    }
-    label{
-      font-size:14px;
-      color:var(--muted);
-    }
-    input[type=text], input[type=password], select{
-      width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,0.05);
-      background:rgba(255,255,255,0.02);
-      color:#e8f4ff;
-    }
-    .row{display:flex;gap:14px;}
-    .btn{
-      padding:12px 16px;
-      border-radius:12px;
-      border:none;
-      background:var(--accent);
-      color:#042028;
-      font-weight:700;
-      cursor:pointer;
-      transition:0.3s;
-      box-shadow:0 4px 15px var(--glow);
-    }
-    .btn:hover{box-shadow:0 6px 20px var(--glow);}
-    .secondary{
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.06);
-      color:var(--muted);
-      border-radius:12px;
-      cursor:pointer;
-      transition:0.3s;
-    }
-    .secondary:hover{background:rgba(255,255,255,0.03);}
-    .selections{
-      background:rgba(255,255,255,0.02);
-      padding:14px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.02);
-    }
-    .sports-list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .sports-list label{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      cursor:pointer;
-    }
-    .summary{
-      margin-top:12px;
-      padding:12px;
-      border-radius:10px;
-      background:rgba(0,0,0,0.25);
-      font-size:14px;
-    }
-
-    footer{
-      text-align:center;
-      color:var(--muted);
-      font-size:12px;
-      margin-top:20px;
-      position:relative;
-      z-index:2;
-    }
-
-    @media(max-width:600px){
-      .row{flex-direction:column;}
-    }
-  </style>
+/* ===== ستايل شبابي 3D ===== */
+:root{--bg:#0f1626;--card:rgba(255,255,255,.07);--ink:#eef2f8;--mut:#9aa7bd;--line:rgba(255,255,255,.13);--boy:#6a9bf0;--girl:#e48aae;--ok:#4cc9a0;--no:#e8737d;--exc:#e6b04f;color-scheme:dark}
+html{background:#0f1626}
+body{background:transparent;font-weight:600;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.32;animation:float 14s ease-in-out infinite}
+.bg i:nth-child(1){width:380px;height:380px;background:#5b6cf0;top:-80px;right:-60px}
+.bg i:nth-child(2){width:320px;height:320px;background:#2e8a8f;bottom:-60px;left:-40px;animation-delay:-5s}
+.bg i:nth-child(3){width:260px;height:260px;background:#4aa8c4;top:45%;left:35%;animation-delay:-9s}
+@keyframes float{50%{transform:translate(40px,-50px) scale(1.15)}}
+header{background:linear-gradient(120deg,#3b4cca,#5b3fb5,#2f7f95,#3b4cca);background-size:300% 100%;animation:hue 12s linear infinite;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+@keyframes hue{to{background-position:300% 0}}
+header h1{font-weight:900;font-size:22px;text-shadow:0 1px 0 #6f7df0,0 2px 0 #4a58c4,0 3px 0 #3d49b0,0 6px 10px rgba(0,0,0,.35)}
+nav{gap:8px;padding-bottom:10px}
+nav button{background:rgba(255,255,255,.14);color:#fff;border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
+nav button:hover{transform:translateY(-2px)}
+nav button.on{background:#fff;color:#323fa8;transform:translateY(-3px);box-shadow:0 7px 0 rgba(0,0,0,.28)}
+.box{background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12)}
+.box,.lgbox{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .18s ease-out}
+section:not(.hide){animation:pop .4s cubic-bezier(.2,.8,.3,1)}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}}
+input,select,textarea{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--line);border-radius:12px;font-weight:600}
+input::placeholder,textarea::placeholder{color:#7d8aa3}
+option{background:#18223a;color:#fff}
+.btn{background:linear-gradient(135deg,#5b6cf0,#7e6bd6);color:#fff;border-radius:12px;box-shadow:0 5px 0 #323fa8,0 10px 18px rgba(91,108,240,.3);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #323fa8}
+.btn.sec{background:rgba(255,255,255,.1);color:#e3e9f4;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.btn.del{background:linear-gradient(135deg,#e5838b,#c9525d);color:#fff;box-shadow:0 4px 0 #7d2a33}
+.btn.wa{background:linear-gradient(135deg,#43c887,#1f9a5f);color:#fff;box-shadow:0 4px 0 #176f44}
+.btn.wa.sent{background:rgba(255,255,255,.1);color:var(--mut);box-shadow:none}
+.m{border-radius:12px;transition:background .15s,transform .15s}
+.m:hover{background:rgba(255,255,255,.06);transform:translateX(-3px)}
+.tag{font-weight:900;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.st button{border:0;background:rgba(255,255,255,.09);color:#cfd8e8;box-shadow:0 3px 0 rgba(0,0,0,.3);border-radius:10px;transition:transform .12s}
+.st button:active{transform:translateY(3px)}
+.st button.p.on{background:linear-gradient(135deg,#4cc9a0,#35a884);color:#06281c;box-shadow:0 3px 0 #1f7a5c,0 6px 14px rgba(76,201,160,.3)}
+.st button.a.on{background:linear-gradient(135deg,#ee8b93,#d9626d);color:#fff;box-shadow:0 3px 0 #8f3039,0 6px 14px rgba(232,115,125,.3)}
+.st button.e.on{background:linear-gradient(135deg,#eec26a,#d99a3a);color:#3a2400;box-shadow:0 3px 0 #8f6420,0 6px 14px rgba(230,176,79,.3)}
+.bump{animation:bump .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bump{0%{transform:scale(.7)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.sum span{background:rgba(255,255,255,.07);padding:6px 14px;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.sum b{font-size:22px;font-weight:900}
+.bar{background:rgba(255,255,255,.12)}
+.bar i{background:linear-gradient(90deg,#4aa8c4,#5b6cf0,#7e6bd6);animation:grow .9s ease-out}
+@keyframes grow{from{width:0}}
+.ban{background:rgba(76,201,160,.15);color:var(--ok)}
+.lg{background:rgba(15,22,38,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.lgbox{background:rgba(24,34,60,.8);border:1px solid rgba(255,255,255,.2);color:#fff;box-shadow:0 30px 60px rgba(0,0,0,.5);animation:bob 4s ease-in-out infinite}
+.lgbox h1{font-weight:900;text-align:center;text-shadow:0 2px 0 #4a58c4,0 4px 0 #323fa8}
+@keyframes bob{50%{translate:0 -8px}}
+.cube{position:relative;width:54px;height:54px;margin:8px auto 18px;transform-style:preserve-3d;animation:spin 8s linear infinite}
+.cube b{position:absolute;inset:0;border-radius:8px;opacity:.92;border:2px solid rgba(255,255,255,.5)}
+.cube b:nth-child(1){transform:translateZ(27px);background:#5b6cf0}
+.cube b:nth-child(2){transform:rotateY(90deg) translateZ(27px);background:#7e6bd6}
+.cube b:nth-child(3){transform:rotateY(180deg) translateZ(27px);background:#4aa8c4}
+.cube b:nth-child(4){transform:rotateY(-90deg) translateZ(27px);background:#e6b04f}
+.cube b:nth-child(5){transform:rotateX(90deg) translateZ(27px);background:#4cc9a0}
+.cube b:nth-child(6){transform:rotateX(-90deg) translateZ(27px);background:#e8737d}
+@keyframes spin{from{transform:rotateX(-22deg) rotateY(0)}to{transform:rotateX(-22deg) rotateY(360deg)}}
+#toast{background:#fff;color:#1d2a4d;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.sp{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#1b2745,#0f1626 70%);transition:opacity .5s,transform .5s}
+.sp.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.spbox{width:min(360px,86vw);text-align:center;color:#fff}
+.spbox h1{margin:6px 0 2px;font-size:32px;font-weight:900;text-shadow:0 2px 0 #4a58c4,0 4px 0 #323fa8}
+.spbox p{margin:0 0 28px;color:var(--mut)}
+.spTrack{height:16px;border-radius:99px;background:rgba(255,255,255,.1);box-shadow:inset 0 3px 6px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.1);overflow:hidden}
+.spTrack i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#4aa8c4,#5b6cf0,#7e6bd6);box-shadow:0 0 14px rgba(91,108,240,.6);transition:width .12s linear;position:relative;overflow:hidden}
+.spTrack i::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);animation:shine 1.2s linear infinite}
+@keyframes shine{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
+.spRow{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--mut);font-size:14px}
+.spRow b{color:#fff;font-size:24px;font-weight:900;font-variant-numeric:tabular-nums}
+a.btn{text-decoration:none;display:inline-block}
+.chart{display:flex;direction:ltr;align-items:flex-end;gap:8px;height:190px;overflow-x:auto;padding-top:8px;margin:8px 0 12px}
+.col{flex:1;min-width:30px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
+.col span{font-size:12px;font-weight:900}.col small{color:var(--mut);font-size:11px}
+.stack{width:100%;max-width:34px;display:flex;flex-direction:column;border-radius:7px 7px 0 0;overflow:hidden;transform-origin:bottom;animation:rise .7s cubic-bezier(.2,.8,.3,1)}
+@keyframes rise{from{transform:scaleY(0)}}
+.lgd{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline:4px 14px}
+.av{width:84px;height:84px;border-radius:50%;object-fit:cover;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;background:linear-gradient(135deg,#5b6cf0,#7e6bd6);box-shadow:0 6px 0 #323fa8,0 12px 20px rgba(0,0,0,.4)}
+.pf{margin:6px 0;color:var(--mut)}.pf b{color:var(--ink)}
+.hist{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.hd{display:flex;flex-direction:column;align-items:center;gap:2px}.hd small{font-size:10px;color:var(--mut)}
+.dot{width:22px;height:22px;border-radius:7px;display:block}
+.dot.p{background:var(--ok)}.dot.a{background:var(--no)}.dot.e{background:var(--exc)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
+<div class="bg"><i></i><i></i><i></i></div>
+<div id="splash" class="sp">
+  <div class="spbox">
+    <div style="perspective:500px"><div class="cube"><b></b><b></b><b></b><b></b><b></b><b></b></div></div>
+    <h1>أهلاً بيك</h1>
+    <p>حضور وغياب خدمة الثانوي</p>
+    <div class="spTrack"><i id="spBar"></i></div>
+    <div class="spRow"><span id="spMsg">بنجهز البرنامج...</span><b id="spPct">0%</b></div>
+  </div>
+</div>
+<div id="login" class="lg hide">
+  <div class="lgbox">
+    <div style="perspective:500px"><div class="cube"><b></b><b></b><b></b><b></b><b></b><b></b></div></div>
+    <h1>حضور وغياب خدمة الثانوي</h1>
+    <p id="lgSub"></p>
+    <input id="lgName" placeholder="اسمك" class="hide">
+    <input id="lgUser" placeholder="اسم المستخدم" autocomplete="username">
+    <input id="lgPass" type="password" placeholder="كلمة السر" autocomplete="current-password">
+    <button class="btn" id="lgBtn">دخول</button>
+    <div id="lgErr"></div>
+  </div>
+</div>
+<div id="app" class="hide">
+<header>
+  <div class="row" style="max-width:900px;margin:auto">
+    <div class="grow"><h1>حضور وغياب خدمة الثانوي</h1><small id="mode"></small></div>
+    <small id="who" style="opacity:.8"></small>
+    <button class="hb hide" id="instBtn">تثبيت</button>
+    <button class="hb hide" id="setBtn">⚙ الإعدادات</button>
+    <button class="hb" id="outBtn">خروج</button>
+  </div>
+  <nav>
+    <button data-t="take" class="on">التحضير</button>
+    <button data-t="members">المخدومين</button>
+    <button data-t="report">التقارير</button>
+    <button data-t="care" data-p="log">الافتقاد</button>
+    <button data-t="log">السجل</button>
+  </nav>
+</header>
+<main>
 
-  <header>
-    <h1>لجنة الأنشطة والمسابقات</h1>
-  </header>
-
-  <main>
-    <div class="card">
-      <!-- لوجو صغير أعلى الشمال -->
-      <div class="logo-top-left"></div>
-
-      <aside class="brand">
-        <h1>لوحة الدوريات</h1>
-        <div class="designer">المصمم: <strong id="designerName">اسم المصمم</strong></div>
-        <div class="desc">اختار الدوري اللي تحب تتابعه - كرة قدم، بنج بونج، شطرنج. تقدر تختار أكتر من واحد.</div>
-      </aside>
-
-      <section>
-        <form id="loginForm" autocomplete="off">
-          <div class="row">
-            <div style="flex:1">
-              <label for="username">اسم المستخدم</label>
-              <input id="username" name="username" type="text" placeholder="اكتب اسم المستخدم" required />
-            </div>
-            <div style="width:140px">
-              <label for="lang">اللغة</label>
-              <select id="lang">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label for="password">كلمة المرور</label>
-            <input id="password" name="password" type="password" placeholder="كلمة المرور" required />
-          </div>
-
-          <div class="selections">
-            <label>اختر الدوريات / الألعاب</label>
-            <div class="sports-list">
-              <label><input type="checkbox" name="sports" value="football" /> دوري كرة القدم</label>
-              <label><input type="checkbox" name="sports" value="pingpong" /> دوري البنج بونج</label>
-              <label><input type="checkbox" name="sports" value="chess" /> دوري الشطرنج</label>
-            </div>
-            <div class="summary" id="selectionSummary">لم تختار أي دوري بعد.</div>
-          </div>
-
-          <div style="display:flex;gap:12px;margin-top:6px">
-            <button class="btn" type="submit">دخول</button>
-            <button class="secondary" type="button" id="clearBtn">مسح الاختيارات</button>
-          </div>
-        </form>
-
-        <div style="margin-top:18px;color:var(--muted);font-size:13px">
-          ملاحظة: هذه صفحة واجهة جاهزة للعرض محلياً. لو حابب أوصلها بقاعدة بيانات (Firebase, Supabase...) أو أضيف تسجيل حقيقي، أقولك أعمل إيه.
-        </div>
-      </section>
-
-      <footer>حقوق التصميم محفوظة — تغيير الشعار والاسم في الكود</footer>
+<section id="take">
+  <div class="box row">
+    <input type="date" id="tDate">
+    <select id="tGroup"><option value="">ولاد وبنات</option><option value="ولاد">ولاد</option><option value="بنات">بنات</option></select>
+    <input class="grow" id="tSearch" placeholder="بحث بالاسم">
+  </div>
+  <div class="box">
+    <div id="tBan"></div>
+    <div class="sum" id="tSum"></div>
+    <div class="row" style="margin-bottom:6px">
+      <button class="btn sec" id="allP">الكل حاضر</button>
+      <button class="btn sec" id="clr">مسح التحضير</button>
+      <button class="btn sec" id="saveA" style="margin-inline-start:auto">حفظ مؤقت</button>
+      <button class="btn" id="finish">إنهاء التحضير</button>
     </div>
-  </main>
+    <div id="tList"></div>
+  </div>
+</section>
 
-  <script>
-    const designerNameEl = document.getElementById('designerName');
-    const designer = 'لجنة الأنشطة والمسابقات';
-    designerNameEl.textContent = designer;
+<section id="members" class="hide">
+  <div class="box">
+    <div class="row">
+      <input class="grow" id="mName" placeholder="اسم المخدوم">
+      <input id="mPhone" placeholder="رقم الموبايل" inputmode="tel">
+      <select id="mGroup"><option>ولاد</option><option>بنات</option></select>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label style="color:var(--mut);font-size:13px">ميلاد <input type="date" id="mBirth"></label>
+      <input class="grow" id="mPhone2" placeholder="موبايل ولي الأمر" inputmode="tel">
+      <input class="grow" id="mAddr" placeholder="العنوان">
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input class="grow" id="mNotes" placeholder="ملاحظات">
+      <label class="btn sec" style="cursor:pointer">صورة <input type="file" id="mPhoto" accept="image/*" hidden></label>
+      <img id="mPrev" class="hide" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
+      <button class="btn" id="saveM">إضافة مخدوم</button>
+      <button class="btn sec hide" id="cancelM">إلغاء التعديل</button>
+    </div>
+  </div>
+  <div class="box"><div id="mList"></div></div>
+</section>
 
-    const summary = document.getElementById('selectionSummary');
-    function updateSummary(){
-      const checked = Array.from(document.querySelectorAll('input[name="sports"]:checked')).map(i=>i.value);
-      if(checked.length===0){ summary.textContent = 'لم تختار أي دوري بعد.'; return }
-      const map = {football:'كرة القدم', pingpong:'البنج بونج', chess:'الشطرنج'};
-      summary.textContent = 'مختار: ' + checked.map(v=>map[v]||v).join(' ، ');
+<section id="report" class="hide">
+  <div class="box row">
+    <label>من <input type="date" id="rFrom"></label>
+    <label>إلى <input type="date" id="rTo"></label>
+    <select id="rGroup"><option value="">ولاد وبنات</option><option value="ولاد">ولاد</option><option value="بنات">بنات</option></select>
+    <button class="btn sec" id="csv" style="margin-inline-start:auto">تصدير Excel</button>
+  </div>
+  <div id="rCharts"></div>
+  <div class="box wrap" id="rOut"></div>
+</section>
+
+<section id="log" class="hide">
+  <details class="box"><summary>نصوص رسائل الواتساب</summary>
+    <small style="color:var(--mut)">اكتب {الاسم} و{التاريخ} وهيتبدلوا تلقائي في كل رسالة.</small>
+    <div class="ln"><b style="color:var(--no)">للغايب</b></div><textarea id="tpA" rows="2"></textarea>
+    <div class="ln"><b style="color:var(--exc)">للمعتذر</b></div><textarea id="tpE" rows="2"></textarea>
+    <div class="ln"><b style="color:var(--ok)">للحاضر</b></div><textarea id="tpP" rows="2"></textarea>
+    <div class="ln"><b>للافتقاد</b> <small style="color:var(--mut)">({العدد} = عدد الجمعات)</small></div><textarea id="tpC" rows="2"></textarea>
+    <div class="ln"><b>لعيد الميلاد</b></div><textarea id="tpB" rows="2"></textarea>
+    <button class="btn" id="saveTpl">حفظ النصوص</button>
+  </details>
+  <div id="lOut"></div>
+</section>
+
+<section id="care" class="hide">
+  <div class="box row"><b>الافتقاد:</b> مين غاب
+    <select id="cN"><option value="2">جمعتين ورا بعض</option><option value="3">3 جمعات</option><option value="4">4 جمعات</option></select> أو أكتر
+  </div>
+  <div class="box"><div id="cList"></div></div>
+  <div class="box"><b>أعياد الميلاد في الأسبوعين الجايين</b><div id="bList" style="margin-top:6px"></div></div>
+</section>
+
+<section id="settings" class="hide">
+  <div class="box">
+    <b id="uTitle">إضافة مستخدم</b>
+    <div class="row" style="margin-top:8px">
+      <input class="grow" id="uName" placeholder="الاسم">
+      <input class="grow" id="uUser" placeholder="اسم المستخدم (إنجليزي)" autocomplete="off">
+      <input class="grow" id="uPass" type="password" placeholder="كلمة السر" autocomplete="new-password">
+    </div>
+    <div class="row" style="margin:12px 0 4px"><label><input type="checkbox" id="uAdmin"> مسؤول (كل الصلاحيات + الإعدادات)</label></div>
+    <div class="row" id="uPerms" style="gap:6px 18px">
+      <label><input type="checkbox" data-perm="take"> يسجل الحضور والغياب</label>
+      <label><input type="checkbox" data-perm="members"> يضيف ويعدل المخدومين</label>
+      <label><input type="checkbox" data-perm="report"> يشوف التقارير</label>
+      <label><input type="checkbox" data-perm="log"> يشوف السجل ويبعت واتساب</label>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="saveU">إضافة مستخدم</button><button class="btn sec hide" id="cancelU">إلغاء التعديل</button></div>
+  </div>
+  <div class="box"><div id="uList"></div></div>
+</section>
+
+</main>
+</div>
+<div id="prof" class="lg hide"><div class="lgbox" style="max-width:480px;max-height:90vh;overflow:auto;animation:none">
+  <div id="profBody"></div><button class="btn sec" id="profClose">إغلاق</button>
+</div></div>
+<div id="toast"></div>
+
+<script>
+// ===== إعداد Firebase (مشروع mena-esk). لو اتمسحت القيم البيانات هتتحفظ على الجهاز بس =====
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB9ovwyXJ8BdFOuzI17mqiAUzstsrWqASs",
+  authDomain: "mena-esk.firebaseapp.com",
+  projectId: "mena-esk",
+  storageBucket: "mena-esk.firebasestorage.app",
+  messagingSenderId: "1017155030697",
+  appId: "1:1017155030697:web:45ce4d32fc36aeda5f23b8"
+};
+// ======================================================================================
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset()*6e4).toISOString().slice(0,10); };
+
+let members = [], att = {}, done = {}, snap = {}, users = [], me = null, editU = null, loadErr = false, cur = {}, editId = null, fs = null;
+const useFB = !!(FIREBASE_CONFIG.apiKey && window.firebase);
+if (useFB) { firebase.initializeApp(FIREBASE_CONFIG); fs = firebase.firestore(); fs.enablePersistence({ synchronizeTabs: true }).catch(() => {}); }
+$('mode').textContent = useFB ? 'متصل بـ Firebase' : 'حفظ محلي على الجهاز (Firebase غير مفعّل)';
+
+const LS = k => JSON.parse(localStorage.getItem(k) || 'null');
+const toast = t => { const e = $('toast'); e.textContent = t; e.classList.add('show'); setTimeout(() => e.classList.remove('show'), 1800); };
+
+const ack = p => Promise.race([p, new Promise(r => setTimeout(r, 2500))]);
+const DB = {
+  async load() {
+    if (useFB) {
+      const m = await fs.collection('sec_members').get();
+      members = m.docs.map(d => ({ id: d.id, ...d.data() }));
+      const a = await fs.collection('sec_attendance').get();
+      att = {}; done = {}; snap = {}; a.docs.forEach(d => { att[d.id] = d.data().records || {}; snap[d.id] = d.data().snap || {}; if (d.data().done) done[d.id] = true; });
+    } else { members = LS('sec_m') || []; att = LS('sec_a') || {}; done = LS('sec_d') || {}; snap = LS('sec_s') || {}; }
+    members.sort((x, y) => x.name.localeCompare(y.name, 'ar'));
+  },
+  async loadUsers() {
+    if (useFB) { const u = await fs.collection('sec_users').get(); users = u.docs.map(d => ({ id: d.id, ...d.data() })); }
+    else users = LS('sec_u') || [];
+  },
+  async saveUser(u) {
+    if (useFB) await ack(fs.collection('sec_users').doc(u.id).set(u));
+    else localStorage.setItem('sec_u', JSON.stringify(users));
+  },
+  async delUser(id) {
+    if (useFB) await ack(fs.collection('sec_users').doc(id).delete());
+    else localStorage.setItem('sec_u', JSON.stringify(users));
+  },
+  async saveMember(m) {
+    if (useFB) await ack(fs.collection('sec_members').doc(m.id).set(m));
+    else localStorage.setItem('sec_m', JSON.stringify(members));
+  },
+  async delMember(id) {
+    if (useFB) await ack(fs.collection('sec_members').doc(id).delete());
+    else localStorage.setItem('sec_m', JSON.stringify(members));
+  },
+  async saveAtt(date, rec) {
+    if (useFB) await ack(fs.collection('sec_attendance').doc(date).set({ records: rec, done: !!done[date], snap: snap[date] || {} }));
+    else { localStorage.setItem('sec_a', JSON.stringify(att)); localStorage.setItem('sec_d', JSON.stringify(done)); localStorage.setItem('sec_s', JSON.stringify(snap)); }
+  },
+  async delSession(date) {
+    if (useFB) await ack(fs.collection('sec_attendance').doc(date).delete());
+    else { localStorage.setItem('sec_a', JSON.stringify(att)); localStorage.setItem('sec_d', JSON.stringify(done)); localStorage.setItem('sec_s', JSON.stringify(snap)); }
+  }
+};
+
+// ===== التبويبات =====
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  ['take', 'members', 'report', 'care', 'log', 'settings'].forEach(t => $(t).classList.toggle('hide', t !== b.dataset.t));
+  if (b.dataset.t === 'report') renderReport();
+  if (b.dataset.t === 'log') renderLog();
+  if (b.dataset.t === 'care') renderCare();
+});
+
+// ===== التحضير =====
+function loadDay() { cur = { ...(att[$('tDate').value] || {}) }; renderTake(); }
+function filtered() {
+  const g = $('tGroup').value, q = $('tSearch').value.trim();
+  return members.filter(m => (!g || m.group === g) && (!q || m.name.includes(q)));
+}
+function renderTake() {
+  const list = filtered(), fin = !!done[$('tDate').value];
+  $('tBan').innerHTML = fin ? '<div class="ban">التحضير ده منتهي ومتسجل في السجل</div>' : '';
+  ['allP', 'clr', 'saveA'].forEach(i => $(i).classList.toggle('hide', fin));
+  $('finish').textContent = fin ? 'إعادة فتح التحضير' : 'إنهاء التحضير';
+  $('tList').innerHTML = list.length ? list.map(m => `
+    <div class="m" data-id="${m.id}">
+      <span class="tag ${m.group === 'ولاد' ? 'boy' : 'girl'}">${m.group}</span>
+      <span class="nm" data-prof="${m.id}" style="cursor:pointer">${esc(m.name)}</span>
+      <div class="st">
+        <button class="p ${cur[m.id] === 'p' ? 'on' : ''}" data-s="p" ${fin ? 'disabled' : ''}>حاضر</button>
+        <button class="a ${cur[m.id] === 'a' ? 'on' : ''}" data-s="a" ${fin ? 'disabled' : ''}>غايب</button>
+        <button class="e ${cur[m.id] === 'e' ? 'on' : ''}" data-s="e" ${fin ? 'disabled' : ''}>معتذر</button>
+      </div>
+    </div>`).join('') : '<div class="empty">مفيش مخدومين. ضيف من تبويب «المخدومين».</div>';
+  const c = s => list.filter(m => cur[m.id] === s).length;
+  $('tSum').innerHTML = `<span>حاضر <b style="color:var(--ok)">${c('p')}</b></span><span>غايب <b style="color:var(--no)">${c('a')}</b></span><span>معتذر <b style="color:var(--exc)">${c('e')}</b></span><span>لسه <b>${list.length - c('p') - c('a') - c('e')}</b></span>`;
+}
+$('tList').onclick = e => {
+  const b = e.target.closest('button[data-s]'); if (!b || done[$('tDate').value] || !can('take')) return;
+  const id = b.closest('.m').dataset.id;
+  cur[id] = cur[id] === b.dataset.s ? undefined : b.dataset.s;
+  if (!cur[id]) delete cur[id];
+  renderTake();
+  const nb = document.querySelector('.m[data-id="' + id + '"] button[data-s="' + b.dataset.s + '"]');
+  if (nb && cur[id]) { nb.classList.add('bump'); if (cur[id] === 'p') { const r = nb.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 12); } }
+};
+$('allP').onclick = () => { filtered().forEach(m => cur[m.id] = 'p'); renderTake(); };
+$('clr').onclick = () => { filtered().forEach(m => delete cur[m.id]); renderTake(); };
+$('saveA').onclick = async () => {
+  if (!can('take')) return;
+  const d = $('tDate').value; if (!d) return toast('اختار التاريخ');
+  att[d] = { ...cur };
+  try { await DB.saveAtt(d, att[d]); toast('تم حفظ التحضير'); } catch (e) { toast('حصل خطأ في الحفظ'); }
+};
+$('finish').onclick = async () => {
+  if (!can('take')) return;
+  const d = $('tDate').value; if (!d) return toast('اختار التاريخ');
+  if (done[d]) {
+    delete done[d];
+    try { await DB.saveAtt(d, att[d] || {}); } catch (e) { toast('حصل خطأ في الحفظ'); }
+    toast('التحضير اتفتح تاني'); return renderTake();
+  }
+  if (!members.length) return toast('ضيف المخدومين الأول');
+  const un = members.filter(m => !cur[m.id]).length;
+  if (!confirm('إنهاء تحضير ' + fmtDate(d) + '؟' + (un ? '\n' + un + ' لسه متعلمش، هيتسجلوا غايب.' : ''))) return;
+  members.forEach(m => { if (!cur[m.id]) cur[m.id] = 'a'; });
+  att[d] = { ...cur }; done[d] = true;
+  snap[d] = {}; members.forEach(m => snap[d][m.id] = { n: m.name, g: m.group, p: m.phone });
+  try { await DB.saveAtt(d, att[d]); } catch (e) { delete done[d]; return toast('حصل خطأ في الحفظ'); }
+  $('tDate').value = nextFri(d); loadDay();
+  toast('تم الإنهاء وتسجيله في السجل');
+  burst(innerWidth / 2, innerHeight / 3, 70);
+  document.querySelector('nav button[data-t="log"]').click();
+  const el = document.querySelector('[data-sess="' + d + '"]'); if (el) el.open = true;
+};
+['tDate'].forEach(i => $(i).onchange = loadDay);
+['tGroup'].forEach(i => $(i).onchange = renderTake);
+$('tSearch').oninput = renderTake;
+
+// ===== المخدومين =====
+function renderMembers() {
+  $('mList').innerHTML = members.length ? members.map(m => `
+    <div class="m" data-id="${m.id}">
+      <span class="tag ${m.group === 'ولاد' ? 'boy' : 'girl'}">${m.group}</span>
+      <span class="nm" data-prof="${m.id}" style="cursor:pointer">${esc(m.name)}<br><small style="color:var(--mut);font-weight:400">${esc(m.phone)}</small></span>
+      <button class="btn sec" data-a="edit">تعديل</button>
+      <button class="btn del" data-a="del">حذف</button>
+    </div>`).join('') : '<div class="empty">لسه مفيش مخدومين مضافين.</div>';
+}
+function resetForm() {
+  editId = null; curPhoto = ''; ['mName', 'mPhone', 'mBirth', 'mPhone2', 'mAddr', 'mNotes', 'mPhoto'].forEach(i => $(i).value = ''); $('mPrev').classList.add('hide');
+  $('saveM').textContent = 'إضافة مخدوم'; $('cancelM').classList.add('hide');
+}
+let curPhoto = '';
+function readPhoto(f) {
+  return new Promise(res => { const r = new FileReader(); r.onload = () => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'), z = Math.min(i.width, i.height); c.width = c.height = 140; c.getContext('2d').drawImage(i, (i.width - z) / 2, (i.height - z) / 2, z, z, 0, 0, 140, 140); res(c.toDataURL('image/jpeg', .72)); }; i.src = r.result; }; r.readAsDataURL(f); });
+}
+$('mPhoto').onchange = async e => { const f = e.target.files[0]; if (!f) return; curPhoto = await readPhoto(f); $('mPrev').src = curPhoto; $('mPrev').classList.remove('hide'); };
+$('saveM').onclick = async () => {
+  if (!can('members')) return;
+  const name = $('mName').value.trim(); if (!name) return toast('اكتب الاسم');
+  const m = { id: editId || uid(), name, phone: $('mPhone').value.trim(), group: $('mGroup').value, birth: $('mBirth').value, phone2: $('mPhone2').value.trim(), addr: $('mAddr').value.trim(), notes: $('mNotes').value.trim(), photo: curPhoto };
+  const i = members.findIndex(x => x.id === m.id);
+  if (i > -1) members[i] = m; else members.push(m);
+  members.sort((x, y) => x.name.localeCompare(y.name, 'ar'));
+  try { await DB.saveMember(m); toast('تم الحفظ'); } catch (e) { toast('حصل خطأ في الحفظ'); }
+  resetForm(); renderMembers(); renderTake();
+};
+$('cancelM').onclick = resetForm;
+$('mList').onclick = async e => {
+  if (!can('members')) return;
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const id = b.closest('.m').dataset.id, m = members.find(x => x.id === id);
+  if (b.dataset.a === 'edit') {
+    editId = id; $('mName').value = m.name; $('mPhone').value = m.phone; $('mGroup').value = m.group;
+    $('mBirth').value = m.birth || ''; $('mPhone2').value = m.phone2 || ''; $('mAddr').value = m.addr || ''; $('mNotes').value = m.notes || '';
+    curPhoto = m.photo || ''; if (curPhoto) { $('mPrev').src = curPhoto; $('mPrev').classList.remove('hide'); } else $('mPrev').classList.add('hide');
+    $('saveM').textContent = 'حفظ التعديل'; $('cancelM').classList.remove('hide'); $('mName').focus();
+  } else if (confirm('حذف ' + m.name + '؟')) {
+    members = members.filter(x => x.id !== id);
+    try { await DB.delMember(id); } catch (e) { toast('حصل خطأ في الحذف'); }
+    renderMembers(); renderTake();
+  }
+};
+
+// ===== التقارير =====
+function stats() {
+  const f = $('rFrom').value, t = $('rTo').value, g = $('rGroup').value;
+  const dates = Object.keys(att).filter(d => done[d] && (!f || d >= f) && (!t || d <= t));
+  const rows = members.filter(m => !g || m.group === g).map(m => {
+    let p = 0, a = 0, e = 0;
+    dates.forEach(d => { const s = (att[d] || {})[m.id]; if (s === 'p') p++; else if (s === 'a') a++; else if (s === 'e') e++; });
+    const tot = p + a + e;
+    return { m, p, a, e, pct: tot ? Math.round(p / tot * 100) : 0, tot };
+  });
+  return { rows, n: dates.length };
+}
+function renderReport() {
+  const { rows, n } = stats();
+  renderCharts(rows);
+  $('rOut').innerHTML = !rows.length ? '<div class="empty">مفيش بيانات.</div>' :
+    `<div style="margin-bottom:8px;color:var(--mut)">عدد الاجتماعات في الفترة: <b>${n}</b></div>
+    <table><tr><th>الاسم</th><th>النوع</th><th>حضور</th><th>غياب</th><th>اعتذار</th><th>النسبة</th></tr>` +
+    rows.map(r => `<tr><td data-prof="${r.m.id}" style="cursor:pointer">${esc(r.m.name)}${r.m.phone ? ` <a href="tel:${esc(r.m.phone)}" style="text-decoration:none">📞</a>` : ''}</td>
+      <td><span class="tag ${r.m.group === 'ولاد' ? 'boy' : 'girl'}">${r.m.group}</span></td>
+      <td>${r.p}</td><td style="color:var(--no)">${r.a}</td><td>${r.e}</td>
+      <td style="min-width:90px">${r.pct}%<div class="bar"><i style="width:${r.pct}%"></i></div></td></tr>`).join('') + '</table>';
+}
+['rFrom', 'rTo', 'rGroup'].forEach(i => $(i).onchange = renderReport);
+$('csv').onclick = () => {
+  const { rows } = stats();
+  const lines = [['الاسم', 'النوع', 'الموبايل', 'حضور', 'غياب', 'اعتذار', 'النسبة %'], ...rows.map(r => [r.m.name, r.m.group, r.m.phone, r.p, r.a, r.e, r.pct])];
+  const csv = '\ufeff' + lines.map(l => l.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'تقرير-الحضور-' + today() + '.csv'; a.click();
+};
+
+function sha256(ascii) {
+  const rr = (v, a) => (v >>> a) | (v << (32 - a));
+  const mw = Math.pow(2, 32), words = [], bitLen = ascii.length * 8;
+  let hash = [], k = [], pc = 0, comp = {}, i, j, out = '';
+  for (let c = 2; pc < 64; c++) {
+    if (!comp[c]) { for (i = 0; i < 313; i += c) comp[i] = c; hash[pc] = (Math.pow(c, .5) * mw) | 0; k[pc++] = (Math.pow(c, 1 / 3) * mw) | 0; }
+  }
+  ascii += '\x80'; while (ascii.length % 64 - 56) ascii += '\x00';
+  for (i = 0; i < ascii.length; i++) { j = ascii.charCodeAt(i); words[i >> 2] |= j << ((3 - i) % 4) * 8; }
+  words[words.length] = (bitLen / mw) | 0; words[words.length] = bitLen;
+  for (j = 0; j < words.length;) {
+    const w = words.slice(j, j += 16), old = hash; hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      const w15 = w[i - 15], w2 = w[i - 2], a = hash[0], e = hash[4];
+      const t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] +
+        (w[i] = i < 16 ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);
+      const t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(t1 + t2) | 0].concat(hash); hash[4] = (hash[4] + t1) | 0;
     }
-    document.querySelectorAll('input[name="sports"]').forEach(i=>i.addEventListener('change', updateSummary));
-    updateSummary();
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;
+  }
+  for (i = 0; i < 8; i++) for (j = 3; j + 1; j--) { const b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? 0 : '') + b.toString(16); }
+  return out;
+}
+const sha = s => sha256(unescape(encodeURIComponent(s)));
 
-    document.getElementById('loginForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      const user = document.getElementById('username').value.trim();
-      const pw = document.getElementById('password').value;
-      const checked = Array.from(document.querySelectorAll('input[name="sports"]:checked')).map(i=>i.value);
-      if(!user || !pw){ alert('كمل اسم المستخدم وكلمة المرور'); return }
-      if(checked.length===0){
-        if(!confirm('لم تختار أي دوري. تواصل بدون اختيار؟')) return;
-      }
-      if(checked.includes('football')){
-        window.location.href = 'https://dividmores-maker.github.io/maro-h/';
-        return;
-      }
-      alert(`مرحباً ${user}!\nلا يوجد انتقال محدد لهذا الاختيار.`);
-    });
+// ===== مؤثرات =====
+function burst(x, y, n) {
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const cols = ['#5b6cf0', '#7e6bd6', '#4aa8c4', '#e6b04f', '#4cc9a0'];
+  for (let i = 0; i < n; i++) {
+    const e = document.createElement('i'), a = Math.random() * Math.PI * 2, v = 60 + Math.random() * 130;
+    e.style.cssText = 'position:fixed;left:' + x + 'px;top:' + y + 'px;width:8px;height:12px;border-radius:2px;z-index:50;pointer-events:none;background:' + cols[i % 5];
+    document.body.appendChild(e);
+    e.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: 'translate(' + Math.cos(a) * v + 'px,' + (Math.sin(a) * v + 90) + 'px) rotate(' + Math.random() * 720 + 'deg)', opacity: 0 }],
+      { duration: 800 + Math.random() * 500, easing: 'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => e.remove();
+  }
+}
+document.addEventListener('mousemove', e => {
+  const t = e.target.closest && e.target.closest('.box,.lgbox'); if (!t) return;
+  const r = t.getBoundingClientRect();
+  t.style.setProperty('--ry', ((e.clientX - r.left) / r.width - .5) * 5 + 'deg');
+  t.style.setProperty('--rx', ((e.clientY - r.top) / r.height - .5) * -5 + 'deg');
+});
+document.addEventListener('mouseout', e => {
+  const t = e.target.closest && e.target.closest('.box,.lgbox');
+  if (t && !t.contains(e.relatedTarget)) { t.style.setProperty('--rx', '0deg'); t.style.setProperty('--ry', '0deg'); }
+});
 
-    document.getElementById('clearBtn').addEventListener('click', ()=>{
-      document.querySelectorAll('input[name="sports"]').forEach(i=>i.checked=false); 
-      updateSummary();
-    });
-  </script>
+// ===== الدخول والصلاحيات =====
+const can = p => !!me && (me.admin || !!(me.perms || {})[p]);
+const PL = { take: 'التحضير', members: 'المخدومين', report: 'التقارير', log: 'السجل' };
+function showLogin() {
+  $('app').classList.add('hide'); $('login').classList.remove('hide');
+  const first = !users.length;
+  $('lgName').classList.toggle('hide', !first);
+  $('lgSub').textContent = loadErr ? 'تعذر تحميل البيانات، اتأكد من الإنترنت وأعد فتح الصفحة.' : first ? 'أول مرة؟ اعمل حساب المسؤول.' : 'سجّل دخولك عشان تكمل.';
+  $('lgBtn').textContent = first ? 'إنشاء حساب المسؤول' : 'دخول';
+  $('lgBtn').disabled = loadErr; $('lgErr').textContent = '';
+}
+function applyPerms() {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('hide', !can(b.dataset.p || b.dataset.t)));
+  $('setBtn').classList.toggle('hide', !me.admin);
+}
+function enter(u) {
+  me = u; localStorage.setItem('sec_login', u.id);
+  $('login').classList.add('hide'); $('app').classList.remove('hide');
+  $('who').textContent = u.name; applyPerms();
+  const first = [...document.querySelectorAll('nav button')].find(b => !b.classList.contains('hide'));
+  if (first) first.click();
+  else { ['take', 'members', 'report', 'care', 'log', 'settings'].forEach(t => $(t).classList.add('hide')); toast('الحساب ده معندوش صلاحيات، كلم المسؤول'); }
+}
+$('lgBtn').onclick = async () => {
+  const un = $('lgUser').value.trim().toLowerCase(), pw = $('lgPass').value, err = t => $('lgErr').textContent = t;
+  if (!un || !pw) return err('اكتب اسم المستخدم وكلمة السر');
+  if (!users.length) {
+    if (pw.length < 4) return err('كلمة السر 4 حروف على الأقل');
+    const salt = uid(), u = { id: uid(), name: $('lgName').value.trim() || un, username: un, salt, hash: sha(salt + '|' + pw), admin: true, perms: { take: true, members: true, report: true, log: true } };
+    users.push(u);
+    try { await DB.saveUser(u); } catch (e) { users.pop(); return err('حصل خطأ في الحفظ'); }
+    return enter(u);
+  }
+  const u = users.find(x => x.username === un);
+  if (!u || u.hash !== sha(u.salt + '|' + pw)) return err('اسم المستخدم أو كلمة السر غلط');
+  $('lgPass').value = ''; enter(u);
+};
+['lgUser', 'lgPass'].forEach(i => $(i).onkeydown = e => { if (e.key === 'Enter') $('lgBtn').click(); });
+$('outBtn').onclick = () => { localStorage.removeItem('sec_login'); me = null; $('lgUser').value = ''; $('lgPass').value = ''; showLogin(); };
+
+// ===== الإعدادات: المستخدمين =====
+$('setBtn').onclick = () => {
+  if (!me || !me.admin) return;
+  document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
+  ['take', 'members', 'report', 'care', 'log'].forEach(t => $(t).classList.add('hide'));
+  $('settings').classList.remove('hide'); renderUsers();
+};
+function setPermBoxes(admin, perms) {
+  document.querySelectorAll('#uPerms input').forEach(i => { i.checked = admin || !!(perms || {})[i.dataset.perm]; i.disabled = admin; });
+}
+$('uAdmin').onchange = () => setPermBoxes($('uAdmin').checked, {});
+function resetU() {
+  editU = null; ['uName', 'uUser', 'uPass'].forEach(i => $(i).value = '');
+  $('uAdmin').checked = false; setPermBoxes(false, {});
+  $('uTitle').textContent = 'إضافة مستخدم'; $('saveU').textContent = 'إضافة مستخدم'; $('cancelU').classList.add('hide');
+}
+function renderUsers() {
+  $('uList').innerHTML = users.map(u => `
+    <div class="m" data-id="${u.id}">
+      <span class="nm">${esc(u.name)} <small style="color:var(--mut);font-weight:400">@${esc(u.username)}</small><br>
+        <small style="color:var(--mut);font-weight:400">${u.admin ? 'مسؤول (كل الصلاحيات)' : Object.keys(PL).filter(k => (u.perms || {})[k]).map(k => PL[k]).join('، ') || 'بدون صلاحيات'}</small></span>
+      <button class="btn sec" data-a="edit">تعديل</button>
+      ${me && u.id !== me.id ? '<button class="btn del" data-a="del">حذف</button>' : ''}
+    </div>`).join('');
+}
+$('saveU').onclick = async () => {
+  if (!me || !me.admin) return;
+  const name = $('uName').value.trim(), un = $('uUser').value.trim().toLowerCase(), pw = $('uPass').value;
+  if (!name || !un) return toast('اكتب الاسم واسم المستخدم');
+  if (users.some(x => x.username === un && x.id !== editU)) return toast('اسم المستخدم ده مستخدم قبل كده');
+  const old = users.find(x => x.id === editU);
+  if ((!old || pw) && pw.length < 4) return toast('كلمة السر 4 حروف على الأقل');
+  const admin = $('uAdmin').checked, perms = {};
+  document.querySelectorAll('#uPerms input').forEach(i => perms[i.dataset.perm] = admin || i.checked);
+  if (old && old.id === me.id && !admin) return toast('مينفعش تشيل صلاحية المسؤول من نفسك');
+  const salt = old ? old.salt : uid();
+  const u = { id: old ? old.id : uid(), name, username: un, salt, hash: pw ? sha(salt + '|' + pw) : old.hash, admin, perms };
+  const prev = old ? { ...old } : null;
+  if (old) users[users.indexOf(old)] = u; else users.push(u);
+  try { await DB.saveUser(u); toast('تم الحفظ'); }
+  catch (e) { if (prev) users[users.findIndex(x => x.id === u.id)] = prev; else users.pop(); return toast('حصل خطأ في الحفظ'); }
+  if (me.id === u.id) { me = u; $('who').textContent = u.name; }
+  resetU(); renderUsers();
+};
+$('cancelU').onclick = resetU;
+$('uList').onclick = async e => {
+  const b = e.target.closest('button[data-a]'); if (!b || !me || !me.admin) return;
+  const id = b.closest('.m').dataset.id, u = users.find(x => x.id === id);
+  if (b.dataset.a === 'edit') {
+    editU = id; $('uName').value = u.name; $('uUser').value = u.username; $('uPass').value = '';
+    $('uAdmin').checked = !!u.admin; setPermBoxes(!!u.admin, u.perms);
+    $('uTitle').textContent = 'تعديل ' + u.name + ' (سيب كلمة السر فاضية لو مش هتغيرها)';
+    $('saveU').textContent = 'حفظ التعديل'; $('cancelU').classList.remove('hide'); $('uName').focus();
+  } else if (u.id !== me.id && confirm('حذف المستخدم ' + u.name + '؟')) {
+    users = users.filter(x => x.id !== id);
+    try { await DB.delUser(id); } catch (e) { toast('حصل خطأ في الحذف'); }
+    renderUsers();
+  }
+};
+
+// ===== الواتساب =====
+const TPL0 = {
+  p: 'ربنا يبارك حياتك يا {الاسم}، فرحنا إنك كنت معانا في اجتماع {التاريخ}.',
+  a: 'إزيك يا {الاسم}؟ افتقدناك في اجتماع {التاريخ}. إن شاء الله كل حاجة تمام، ونشوفك الجمعة الجاية.',
+  e: 'شكرًا يا {الاسم} إنك عرّفتنا إنك مش جاي يوم {التاريخ}. ربنا معاك ونشوفك الجمعة الجاية.',
+  c: 'إزيك يا {الاسم}؟ بقالك {العدد} جمعات مش معانا وافتقدناك جدًا. نفسنا نشوفك ونطمن عليك.',
+  b: 'كل سنة وإنت طيب يا {الاسم}! ربنا يفرّح قلبك ويبارك في عمرك.'
+};
+const tpl = () => ({ ...TPL0, ...(LS('sec_tpl') || {}) });
+function fillTpl() { const t = tpl(); $('tpP').value = t.p; $('tpA').value = t.a; $('tpE').value = t.e; $('tpC').value = t.c; $('tpB').value = t.b; }
+$('saveTpl').onclick = () => { localStorage.setItem('sec_tpl', JSON.stringify({ p: $('tpP').value, a: $('tpA').value, e: $('tpE').value, c: $('tpC').value, b: $('tpB').value })); toast('تم حفظ النصوص'); };
+function waNum(x) {
+  let n = String(x || '').replace(/\D/g, '');
+  if (n.startsWith('00')) n = n.slice(2); else if (n.startsWith('0')) n = '20' + n.slice(1);
+  return n;
+}
+function sendWA(b) {
+  if (!can('log')) return;
+  const { wd: d, wi: id, ws: s } = b.dataset;
+  const sn = (snap[d] || {})[id] || {}, m = members.find(x => x.id === id) || {};
+  const ph = waNum(m.phone || sn.p); if (!ph) return toast('مفيش رقم موبايل');
+  const msg = tpl()[s].replace(/\{الاسم\}/g, sn.n || m.name || '').replace(/\{التاريخ\}/g, fmtDate(d));
+  window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(msg), '_blank');
+  b.classList.add('sent'); b.textContent = 'اتبعت ✓';
+}
+
+// ===== السجل =====
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const addDays = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return ymd(d); };
+const isFri = s => new Date(s + 'T12:00:00').getDay() === 5;
+const nextFri = s => { let d = addDays(s, 1); while (!isFri(d)) d = addDays(d, 1); return d; };
+function defaultDate() { let d = today(); while (!isFri(d)) d = addDays(d, -1); return done[d] ? nextFri(d) : d; }
+const fmtDate = s => new Date(s + 'T12:00:00').toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+const ST = { a: ['الغايبين', 'var(--no)'], e: ['المعتذرين', 'var(--exc)'], p: ['الحاضرين', 'var(--ok)'] };
+function renderLog() {
+  const ds = Object.keys(done).filter(d => done[d]).sort().reverse();
+  $('lOut').innerHTML = ds.length ? ds.map(d => {
+    const r = att[d] || {};
+    const who = s => Object.keys(r).filter(id => r[id] === s).map(id => {
+      const sn = (snap[d] || {})[id] || {}, m = members.find(x => x.id === id) || {};
+      return { id, n: sn.n || m.name || 'غير معروف', ph: waNum(m.phone || sn.p) };
+    }).sort((x, y) => x.n.localeCompare(y.n, 'ar'));
+    const L = { a: who('a'), e: who('e'), p: who('p') };
+    return `<details class="box" data-sess="${d}"><summary>${fmtDate(d)}<br>
+      <span style="color:var(--no)">غياب ${L.a.length}</span> &nbsp; <span style="color:var(--exc)">اعتذار ${L.e.length}</span> &nbsp; <span style="color:var(--ok)">حضور ${L.p.length}</span></summary>` +
+      ['a', 'e', 'p'].map(s => `<div class="ln"><b style="color:${ST[s][1]}">${ST[s][0]} (${L[s].length})</b></div>` +
+        L[s].map(x => `<div class="m"><span class="nm">${esc(x.n)}</span>${x.ph ? `<button class="btn wa" data-wd="${d}" data-wi="${x.id}" data-ws="${s}">واتساب</button>` : '<small style="color:var(--mut)">مفيش رقم</small>'}</div>`).join('')).join('') +
+      `${me && me.admin ? `<button class="btn del" data-d="${d}" style="margin-top:8px">حذف من السجل</button>` : ''}</details>`;
+  }).join('') : '<div class="box empty">مفيش تحضيرات منتهية لسه. اضغط «إنهاء التحضير» بعد كل جمعة.</div>';
+}
+$('lOut').onclick = async e => {
+  const w = e.target.closest('button[data-wi]'); if (w) return sendWA(w);
+  const b = e.target.closest('button[data-d]'); if (!b || !me || !me.admin) return;
+  const d = b.dataset.d; if (!confirm('حذف سجل ' + fmtDate(d) + '؟')) return;
+  delete att[d]; delete done[d]; delete snap[d];
+  try { await DB.delSession(d); } catch (e) { toast('حصل خطأ في الحذف'); }
+  renderLog(); loadDay();
+};
+
+// ===== تشغيل =====
+// ===== الافتقاد وأعياد الميلاد =====
+const short = d => d.slice(8) + '/' + d.slice(5, 7);
+const sessDesc = () => Object.keys(done).filter(d => done[d]).sort().reverse();
+function careInfo(id) {
+  const ds = sessDesc(); let i = 0, n = 0;
+  for (; i < ds.length; i++) { const x = (att[ds[i]] || {})[id]; if (x === 'a' || x === 'e') n++; else break; }
+  return { n, last: ds.slice(i).find(d => (att[d] || {})[id] === 'p') };
+}
+function bday(b) {
+  const t = new Date(today() + 'T12:00:00'), [y, mo, da] = b.split('-').map(Number);
+  let n = new Date(t.getFullYear(), mo - 1, da, 12); if (n < t) n = new Date(t.getFullYear() + 1, mo - 1, da, 12);
+  return { d: Math.round((n - t) / 864e5), age: n.getFullYear() - y };
+}
+const tg = g => `<span class="tag ${g === 'ولاد' ? 'boy' : 'girl'}">${g}</span>`;
+function renderCare() {
+  const N = +$('cN').value;
+  const L = members.map(m => ({ m, ...careInfo(m.id) })).filter(x => x.n >= N).sort((a, b) => b.n - a.n || a.m.name.localeCompare(b.m.name, 'ar'));
+  $('cList').innerHTML = L.length ? L.map(x => `<div class="m">${tg(x.m.group)}
+    <span class="nm" data-prof="${x.m.id}" style="cursor:pointer">${esc(x.m.name)}<br><small style="color:var(--mut);font-weight:400">غايب ${x.n === 2 ? 'جمعتين' : x.n + ' جمعات'} ورا بعض، ${x.last ? 'آخر حضور ' + short(x.last) : 'لسه ما حضرش'}</small></span>
+    ${x.m.phone ? `<button class="btn wa" data-cw="${x.m.id}">واتساب</button><a class="btn sec" href="tel:${esc(x.m.phone)}">اتصال</a>` : ''}
+    ${x.m.phone2 ? `<button class="btn wa" data-cw="${x.m.id}" data-p2="1">ولي الأمر</button>` : ''}</div>`).join('')
+    : '<div class="empty">مفيش حد غايب بالعدد ده. ربنا يديم النعمة.</div>';
+  const B = members.filter(m => m.birth).map(m => ({ m, ...bday(m.birth) })).filter(x => x.d <= 14).sort((a, b) => a.d - b.d);
+  $('bList').innerHTML = B.length ? B.map(x => `<div class="m">${tg(x.m.group)}
+    <span class="nm" data-prof="${x.m.id}" style="cursor:pointer">${esc(x.m.name)}<br><small style="color:${x.d === 0 ? 'var(--exc)' : 'var(--mut)'};font-weight:600">${x.d === 0 ? 'النهاردة' : x.d === 1 ? 'بكرة' : 'بعد ' + x.d + ' يوم'}، هيتم ${x.age} سنة</small></span>
+    ${x.m.phone ? `<button class="btn wa" data-bw="${x.m.id}">واتساب</button>` : ''}</div>`).join('')
+    : '<div class="empty">مفيش أعياد ميلاد قريبة. اتأكد إنك مسجل تاريخ الميلاد في تبويب المخدومين.</div>';
+}
+function openWA(ph, msg) {
+  const n = waNum(ph); if (!n) return toast('مفيش رقم موبايل');
+  window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(msg), '_blank');
+}
+$('care').onclick = e => {
+  if (!can('log')) return;
+  const c = e.target.closest('[data-cw]'), b = e.target.closest('[data-bw]');
+  if (c) {
+    const m = members.find(x => x.id === c.dataset.cw), n = careInfo(m.id).n;
+    openWA(c.dataset.p2 ? m.phone2 : m.phone, c.dataset.p2
+      ? 'السلام عليكم، بنطمن على ' + m.name + '، بقاله ' + n + ' جمعات مش معانا في الاجتماع وافتقدناه. ربنا يحفظه.'
+      : tpl().c.replace(/\{الاسم\}/g, m.name).replace(/\{العدد\}/g, n));
+    c.classList.add('sent'); c.textContent = 'اتبعت ✓';
+  }
+  if (b) { const m = members.find(x => x.id === b.dataset.bw); openWA(m.phone, tpl().b.replace(/\{الاسم\}/g, m.name)); b.classList.add('sent'); b.textContent = 'اتبعت ✓'; }
+};
+$('cN').onchange = renderCare;
+
+// ===== ملف المخدوم =====
+function openProfile(id) {
+  if (!(can('members') || can('log'))) return;
+  const m = members.find(x => x.id === id); if (!m) return;
+  let p = 0, a = 0, e = 0; const hist = [];
+  sessDesc().forEach(d => { const x = (att[d] || {})[id]; if (!x) return; if (x === 'p') p++; else if (x === 'a') a++; else e++; hist.push([d, x]); });
+  const tot = p + a + e, pct = tot ? Math.round(p / tot * 100) : 0;
+  const age = m.birth ? Math.floor((Date.now() - new Date(m.birth)) / 31557600000) : '';
+  const line = (k, v) => v ? `<div class="pf">${k}: <b>${esc(v)}</b></div>` : '';
+  $('profBody').innerHTML = `<div style="text-align:center">
+    ${m.photo ? `<img class="av" alt="" src="${m.photo}">` : `<div class="av">${esc((m.name.trim()[0]) || '؟')}</div>`}
+    <h2 style="margin:10px 0 4px">${esc(m.name)}</h2>${tg(m.group)}${age !== '' ? ` <small style="color:var(--mut)">${age} سنة</small>` : ''}</div>
+    <div class="sum" style="justify-content:center;margin:14px 0 8px"><span>حضور <b style="color:var(--ok)">${p}</b></span><span>غياب <b style="color:var(--no)">${a}</b></span><span>اعتذار <b style="color:var(--exc)">${e}</b></span><span>النسبة <b>${pct}%</b></span></div>
+    ${line('الموبايل', m.phone)}${line('ولي الأمر', m.phone2)}${line('العنوان', m.addr)}${line('تاريخ الميلاد', m.birth)}${line('ملاحظات', m.notes)}
+    <div class="row" style="margin:10px 0">
+      ${waNum(m.phone) ? `<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${waNum(m.phone)}">واتساب</a><a class="btn sec" href="tel:${esc(m.phone)}">اتصال</a>` : ''}
+      ${waNum(m.phone2) ? `<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${waNum(m.phone2)}">ولي الأمر</a>` : ''}</div>
+    ${hist.length ? `<div class="pf"><b>آخر ${Math.min(12, hist.length)} جمعات</b></div><div class="hist">${hist.slice(0, 12).reverse().map(([d, x]) => `<div class="hd"><i class="dot ${x}"></i><small>${short(d)}</small></div>`).join('')}</div>` : ''}`;
+  $('prof').classList.remove('hide');
+}
+document.addEventListener('click', e => { const t = e.target.closest('[data-prof]'); if (t) openProfile(t.dataset.prof); });
+$('profClose').onclick = () => $('prof').classList.add('hide');
+$('prof').onclick = e => { if (e.target === $('prof')) $('prof').classList.add('hide'); };
+
+// ===== إحصائيات =====
+function renderCharts(rows) {
+  const f = $('rFrom').value, t = $('rTo').value;
+  const ds = Object.keys(done).filter(d => done[d] && (!f || d >= f) && (!t || d <= t)).sort().slice(-12);
+  if (!ds.length) { $('rCharts').innerHTML = ''; return; }
+  const gOf = (d, id) => ((snap[d] || {})[id] || {}).g || (members.find(m => m.id === id) || {}).group;
+  const cols = ds.map(d => { let b = 0, g = 0; Object.entries(att[d] || {}).forEach(([id, x]) => { if (x === 'p') { if (gOf(d, id) === 'ولاد') b++; else g++; } }); return { d, b, g }; });
+  const max = Math.max(1, ...cols.map(c => c.b + c.g));
+  const gp = g => { const r = rows.filter(x => x.m.group === g), P = r.reduce((s, x) => s + x.p, 0), T = r.reduce((s, x) => s + x.tot, 0); return T ? Math.round(P / T * 100) : 0; };
+  const avg = Math.round(cols.reduce((s, c) => s + c.b + c.g, 0) / cols.length);
+  const best = cols.reduce((x, c) => (c.b + c.g > x.b + x.g ? c : x), cols[0]);
+  const top = rows.filter(x => x.tot).sort((x, y) => y.pct - x.pct || y.p - x.p).slice(0, 5);
+  $('rCharts').innerHTML = `<div class="box"><b>الحضور في آخر ${cols.length} جمعات</b>
+    <div style="margin-top:6px;font-size:13px;color:var(--mut)"><i class="lgd" style="background:var(--boy)"></i>ولاد<i class="lgd" style="background:var(--girl)"></i>بنات</div>
+    <div class="chart">${cols.map(c => `<div class="col"><span>${c.b + c.g}</span><div class="stack" style="height:${Math.max(4, (c.b + c.g) / max * 120)}px"><i style="flex:${c.g};background:var(--girl)"></i><i style="flex:${c.b};background:var(--boy)"></i></div><small>${short(c.d)}</small></div>`).join('')}</div>
+    <div class="sum"><span>متوسط الحضور <b>${avg}</b></span><span>نسبة الولاد <b>${gp('ولاد')}%</b></span><span>نسبة البنات <b>${gp('بنات')}%</b></span><span>أعلى حضور <b>${best.b + best.g}</b> <small>(${short(best.d)})</small></span></div>
+    ${top.length ? `<div class="ln"><b>الأكثر التزامًا:</b> ${top.map(x => esc(x.m.name) + ' (' + x.pct + '%)').join('، ')}</div>` : ''}</div>`;
+}
+
+// ===== PWA =====
+let dpr;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); dpr = e; $('instBtn').classList.remove('hide'); });
+$('instBtn').onclick = () => { if (dpr) { dpr.prompt(); dpr = null; $('instBtn').classList.add('hide'); } };
+if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+// ===== شاشة الاستقبال =====
+let prog = 0;
+function setP(v) {
+  prog = v; $('spBar').style.width = v + '%'; $('spPct').textContent = Math.round(v) + '%';
+  $('spMsg').textContent = v >= 100 ? 'جاهزين!' : v < 35 ? 'بنجهز البرنامج...' : v < 70 ? 'بنحمّل المخدومين والسجل...' : 'لحظة وهنخلص...';
+}
+const spTick = setInterval(() => { if (prog < 90) setP(prog + (90 - prog) * 0.05 + 0.3); }, 60);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+(async () => {
+  const t0 = Date.now();
+  try { await DB.load(); await DB.loadUsers(); } catch (e) { loadErr = true; toast('تعذر تحميل البيانات'); }
+  $('tDate').value = defaultDate(); fillTpl();
+  loadDay(); renderMembers();
+  const u0 = users.find(x => x.id === localStorage.getItem('sec_login'));
+  if (u0) enter(u0); else showLogin();
+  await wait(Math.max(0, 2200 - (Date.now() - t0)));
+  clearInterval(spTick); setP(100);
+  await wait(600);
+  $('splash').classList.add('out');
+  await wait(500); $('splash').classList.add('hide');
+})();
+</script>
 </body>
 </html>
